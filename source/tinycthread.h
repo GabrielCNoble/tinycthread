@@ -56,8 +56,12 @@ extern "C" {
 #if !defined(_TTHREAD_PLATFORM_DEFINED_)
   #if defined(_WIN32) || defined(__WIN32__) || defined(__WINDOWS__)
     #define _TTHREAD_WIN32_
+    #define _SPINLOCK_WIN32_
   #else
     #define _TTHREAD_POSIX_
+    #if defined(__GNUC__)
+      #define _SPINLOCK_GNUC_
+    #endif
   #endif
   #define _TTHREAD_PLATFORM_DEFINED_
 #endif
@@ -473,7 +477,7 @@ int tss_set(tss_t key, void *val);
 #endif
 
 
-typedef int spnl_t;
+typedef long spnl_t;
 
 /** Blocks the current thread until acquiring the lock.
  * @param spinlock The spinlock to lock.

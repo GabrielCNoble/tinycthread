@@ -37,6 +37,10 @@ freely, subject to the following restrictions:
   #include <sys/timeb.h>
 #endif
 
+#if defined (_SPINLOCK_WIN32_)
+  #include <winnt.h>
+#endif
+
 /* Standard, good-to-have defines */
 #ifndef NULL
   #define NULL (void*)0
@@ -934,21 +938,25 @@ void spnl_lock(spnl_t *spinlock)
 
 int spnl_try_lock(spnl_t *spinlock)
 {
-  #if defined (__GNUC__)
+  #if defined (_SPINLOCK_GNUC_)
     int expected = 0;
     return __atomic_compare_exchange_n(spinlock, &expected, 1, 0, 0, 0);
+  #elif defined (_SPINLOCK_WIN32_)
+    return InterlockedExchange((LONG *)spinlock, 1) == 0;
   #else 
-    #error "spnl_lock not implemented for this platform... yet..."
+    #error "spnl_try_lock not implemented for this platform... yet..."
   #endif
 }
 
 void spnl_unlock(spnl_t *spinlock)
 {
-  #if defined (__GNUC__)
+  #if defined (_SPINLOCK_GNUC_)
     int expected = 1;
     __atomic_compare_exchange_n(spinlock, &expected, 0, 0, 0, 0);
+  #elif defined (_SPINLOCK_WIN32_)
+    InterlockedExchange((LONG *)spinlock, 0);
   #else 
-    #error "spnl_lock not implemented for this platform... yet..."
+    #error "spnl_unlock not implemented for this platform... yet..."
   #endif
 }
 
