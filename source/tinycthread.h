@@ -472,6 +472,25 @@ int tss_set(tss_t key, void *val);
   #define call_once(flag,func) pthread_once(flag,func)
 #endif
 
+
+typedef int spnl_t;
+
+/** Blocks the current thread until acquiring the lock.
+ * @param spinlock The spinlock to lock.
+*/
+void spnl_lock(spnl_t *spinlock);
+
+/** Tries to acquired the lock without blocking the current thread.
+ * @param spinlock The spinlock to try to lock.
+ * @return TRUE if the lock was acquired, FALSE otherwise.
+ */
+int spnl_try_lock(spnl_t *spinlock);
+
+/** Releases the lock.
+ * @param spinlock. The spinlock to unlock.
+ */
+void spnl_unlock(spnl_t *spinlock);
+
 #ifdef __cplusplus
 }
 #endif

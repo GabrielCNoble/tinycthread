@@ -926,6 +926,32 @@ void call_once(once_flag *flag, void (*func)(void))
 }
 #endif /* defined(_TTHREAD_WIN32_) */
 
+
+void spnl_lock(spnl_t *spinlock)
+{ 
+    while(!spnl_try_lock(spinlock));
+}
+
+int spnl_try_lock(spnl_t *spinlock)
+{
+  #if defined (__GNUC__)
+    int expected = 0;
+    return __atomic_compare_exchange_n(spinlock, &expected, 1, 0, 0, 0);
+  #else 
+    #error "spnl_lock not implemented for this platform... yet..."
+  #endif
+}
+
+void spnl_unlock(spnl_t *spinlock)
+{
+  #if defined (__GNUC__)
+    int expected = 1;
+    __atomic_compare_exchange_n(spinlock, &expected, 0, 0, 0, 0);
+  #else 
+    #error "spnl_lock not implemented for this platform... yet..."
+  #endif
+}
+
 #ifdef __cplusplus
 }
 #endif
